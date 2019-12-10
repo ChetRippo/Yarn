@@ -519,7 +519,7 @@ a:hover { color: #000;}
 
 .node-editor .form .bbcode-toolbar .bbcode-button:hover {background-color: #e7e7e7;}
 
-.node-editor .form .bbcode-toolbar .bbcode-button:active 
+.node-editor .form .bbcode-toolbar .bbcode-button:active
 {
 	color: purple;
 	background-color: rgb(255, 255, 172);
@@ -626,7 +626,32 @@ a:hover { color: #000;}
 
 .comment
 {
-	color: #44fe66;
+	color: #777;
+}
+
+.tag-content
+{
+	color: #8797FF;
+}
+
+.tag-unclosed
+{
+	color: #ff0000;
+}
+
+.ace_comment
+{
+	color: #777 !important;
+}
+
+.ace_tag-content
+{
+	color: #8797FF;
+}
+
+.ace_tag-unclosed
+{
+	color: #ff0000;
 }
 
 /* --- NODE DELETE --- */

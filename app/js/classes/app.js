@@ -36,7 +36,7 @@ var App = function(name, version) {
   this.spellcheckEnabled = true;
   this.nightModeEnabled = false;
   this.nodeVisitHistory = [];
-  this.mouseX = 0; 
+  this.mouseX = 0;
   this.mouseY = 0;
 
   this.UPDATE_ARROWS_THROTTLE_MS = 25;
@@ -67,7 +67,8 @@ var App = function(name, version) {
 
     self.canvas = $(".arrows")[0];
     self.context = self.canvas.getContext("2d");
-    self.newNode().title("Start");
+    self.newNode().title("1_1_1");
+    self.nodes()[0].body("\n[[|1_1_2]]");
 
     // search field enter
     self.$searchField.on("keydown", function(e) {
@@ -243,7 +244,7 @@ var App = function(name, version) {
         MarqRect = { x1: 0, y1: 0, x2: 0, y2: 0 };
         $("#marquee").css({ x: 0, y: 0, width: 0, height: 0 });
         MarqueeOn = false;
-      });  
+      });
     })();
 
     // search field
@@ -315,8 +316,8 @@ var App = function(name, version) {
           case 89:
             self.historyDirection("redo");
             break;
-          case 68:
-            self.deselectAllNodes();
+          //case 68:
+          //  self.deselectAllNodes();
         }
       }
     });
@@ -379,6 +380,22 @@ var App = function(name, version) {
         movement = scale * 100;
       }
 
+      if ((e.metaKey || e.ctrlKey) && e.keyCode == 68)
+      {
+        var nodes = self.getSelectedNodes();
+        for (var i in nodes)
+        {
+          var newNode = new Node();
+          self.nodes.push(newNode);
+          newNode.x(nodes[i].y()-50);
+          newNode.y(nodes[i].y()-50);
+          newNode.colorID(nodes[i].colorID());
+          newNode.title(nodes[i].title());
+          newNode.body(nodes[i].body());
+          newNode.tags(nodes[i].tags());
+        }
+      }
+
       if (e.keyCode === 65 || e.keyCode === 37) {
         // a or left arrow
         self.transformOrigin[0] += movement;
@@ -430,7 +447,7 @@ var App = function(name, version) {
         if (
           self.focusedNodeIdx > -1 &&
           nodes.length > self.focusedNodeIdx &&
-          (self.transformOrigin[0] != 
+          (self.transformOrigin[0] !=
             -nodes[self.focusedNodeIdx].x() +
               $(window).width() / 2 -
               $(nodes[self.focusedNodeIdx].element).width() / 2 ||
@@ -484,7 +501,7 @@ var App = function(name, version) {
       } else {
         tag = '[' + tag + ']';
       }
-      
+
       var selectRange = JSON.parse(JSON.stringify(self.editor.selection.getRange()));
       self.editor.session.insert(selectRange.start, tag)
       self.editor.session.insert({
@@ -497,7 +514,7 @@ var App = function(name, version) {
           self.moveEditCursor(-9);
           self.insertColorCode();
           return
-        } 
+        }
         self.editor.selection.setRange({
           start: {
             row:self.editor.selection.getRange().start.row,
@@ -524,7 +541,7 @@ var App = function(name, version) {
     };
 
     $(document).on("mousemove", function(e) {
-      self.mouseX = e.pageX; 
+      self.mouseX = e.pageX;
       self.mouseY = e.pageY;
     });
 
@@ -533,7 +550,7 @@ var App = function(name, version) {
       // http://bgrins.github.io/spectrum/
       $("#colorPicker").spectrum("set", self.editor.getSelectedText());
       $("#colorPicker").spectrum("toggle");
-      $('#colorPicker-container').css({'top':self.mouseY - 50,'left':self.mouseX - 70}); 
+      $('#colorPicker-container').css({'top':self.mouseY - 50,'left':self.mouseX - 70});
       $('#colorPicker-container').show();
       $("#colorPicker").on("dragstop.spectrum", function(e, color) {
         self.applyPickerColorEditor(color);
@@ -797,7 +814,7 @@ var App = function(name, version) {
       success: function( response ) {
         alert(response.quoteText + "\n\n-" + response.quoteAuthor)
       }
-    }); 
+    });
   };
 
   this.editNode = function(node) {
@@ -818,12 +835,12 @@ var App = function(name, version) {
       var spellCheckButton = document.getElementById("toglSpellCheck");
       spellCheckButton.checked = self.spellcheckEnabled;
       var nightModeButton = document.getElementById("toglNightMode");
-      nightModeButton.checked = self.nightModeEnabled;  
+      nightModeButton.checked = self.nightModeEnabled;
       self.toggleNightMode();
       var showCounterButton = document.getElementById("toglShowCounter");
-      showCounterButton.checked = self.showCounter;  
+      showCounterButton.checked = self.showCounter;
       self.toggleShowCounter()
-      
+
       /// set color picker
       $("#colorPicker").spectrum({
         flat: true,
@@ -942,7 +959,7 @@ var App = function(name, version) {
   this.togglePreviewMode = function(previewModeOverwrite) {
     var editor = $(".editor")[0];
     var editorPreviewer = document.getElementById("editor-preview")
-    
+
     if (previewModeOverwrite) { //preview mode
       editor.style.visibility = "hidden";
       editorPreviewer.style.visibility = "visible";
@@ -1153,7 +1170,7 @@ var App = function(name, version) {
   this.updateNodeLinks = function() {
     for (var i in self.nodes()) self.nodes()[i].updateLinks();
   };
-  
+
   this.makeNewNodesFromLinks = function(){
     var otherNodeTitles = self.getOtherNodeTitles()
 
@@ -1174,7 +1191,7 @@ var App = function(name, version) {
     app.nodes().forEach((node) => {
       if (node.title() !== self.editing().title()) {
         result.push(node.title().trim());
-      }  
+      }
     })
     return result
   };
@@ -1269,6 +1286,15 @@ var App = function(name, version) {
   this.getHighlightedText = function(text) {
     text = text.replace(/\</g, "&lt;");
     text = text.replace(/\>/g, "&gt;");
+    text = text.replace(/\&lt;([a-z0-9]*)\b[^\&gt;]*\&gt;(.*?)\&lt;\/\1\&gt;|\&lt;([a-z0-9]*)=[a-z0-9]*\b[^\&gt;]*\&gt;(.*?)\&lt;\/\3\&gt;/ig, function replace(match) {
+      return '<span class="tag-content">' + match + '</span>';
+    });
+    text = text.replace(/(?=(?!\&lt;([a-z0-9]*)\b[^\&gt;]*\&gt;(.*?)\&lt;\/\1\&gt;|\&lt;([a-z0-9]*)=[a-z0-9]*\b[^\&gt;]*\&gt;(.*?)\&lt;\/\3\&gt;))\&lt;[a-z0-9][^\&lt;\&gt;/]*\&gt;/ig, function replace(match) {
+      return '<span class="tag-unclosed">' + match + '</span>';
+    });
+    text = text.replace(/[^\x00-\x7F]/g, function replace(match) {
+      return '<span class="tag-unclosed">' + match + '</span>';
+    });
     text = text.replace(
       /\&lt;\&lt;(.*?)\&gt;\&gt;/g,
       '<p class="conditionbounds">&lt;&lt;</p><p class="condition">$1</p><p class="conditionbounds">&gt;&gt;</p>'
